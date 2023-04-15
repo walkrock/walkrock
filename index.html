@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>leaflet-map-simple</title>
+  <title>Rockcliffe Park Heritage Walk</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="utf-8">
 
@@ -11,39 +11,238 @@
 
   <!-- Position the map and title with Cascading Style Sheet (CSS) -->
   <style>
-  body { margin:0; padding:0; }
-  #map { position: absolute; top:0; bottom:0; right:0; left:0; }
-  #map-title { position: relative; margin-top: 10px; margin-left: 50px; float: left; background: white; border: 2px solid rgba(0,0,0,0.2); padding: 6px 8px; font-family: Helvetica; font-weight: bold; font-size: 24px; z-index: 800; }
+    body,html {
+      height: 100%;
+      margin:0;
+      padding:0;
+    }
+    body {
+      position: relative;
+    }
+    #map { 
+      position: absolute;
+      top:0;
+      bottom:0;
+      right:0;
+      left:0;
+      z-index: 1;
+    }
+    #popup {
+      top: -100%;
+      z-index : 2;
+      transition: 1s;
+      position: absolute;
+      background: #000;
+      color: #fff;
+      left: 10%;
+      transform: translateX(-5%);
+      padding: 1em;
+    }
+    #popup a {
+      color: #fff;
+      display: block;
+    }
+    #marker {
+      width: 100%;
+    }
+    #popup.ready {
+      top: 10%;
+    }
+    #map-title { position: relative; margin-top: 10px; margin-left: 50px; float: left; background: white; border: 2px solid rgba(0,0,0,0.2); padding: 6px 8px; font-family: Helvetica; font-weight: bold; font-size: 24px; z-index: 800; }
   </style>
 </head>
 <body>
 
   <!-- Display the map and title with HTML division tags  -->
-  <div id="map-title">EDIT map title</div>
+  <div id="map-title">Rockcliffe Park Heritage Walk</div>
   <div id="map"></div>
 
   <!-- Create the interactive map content with JavaScript (.js) -->
   <script>
+  
+  var allMarkers = [];
+  var shownCommunityNote = false;
 
   /* Set up the initial map center and zoom level */
   var map = L.map('map', {
-    center: [41.77, -72.69], // EDIT coordinates to re-center map
-    zoom: 12,  // EDIT from 1 (zoomed out) to 18 (zoomed in)
+    center: [45.450770, -75.678480], // EDIT coordinates to re-center map
+    zoom: 16,  // EDIT from 1 (zoomed out) to 18 (zoomed in)
     scrollWheelZoom: false
   });
 
   /* display basemap tiles -- see others at https://leaflet-extras.github.io/leaflet-providers/preview/ */
   L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://osm.org/copyright">\
         OpenStreetMap</a> contributors, &copy;\
         <a href="https://carto.com/attribution">CARTO</a>'
   }).addTo(map);
 
-  /* Display a point marker with pop-up text */
-  L.marker([41.77, -72.69]).addTo(map) // EDIT marker coordinates
-  .bindPopup("Insert pop-up text here"); // EDIT pop-up text message
+  var greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
 
+  var blueIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [20, 30],
+    iconAnchor: [6, 30],
+    popupAnchor: [1, -34],
+    shadowSize: [30, 30]
+  });
+
+  function showImages(location){
+    var div = document.createElement('div');
+    var locationDesc = location.toLowerCase().replace(/ /g, "_")+'_desc.jpg';
+    var locationShot = location.toLowerCase().replace(/ /g, "_")+'_shot.jpg';
+    console.log(locationDesc);
+    console.log(locationShot);
+    div.id = 'popup';
+    div.innerHTML = '<div><h1 style="display:inline;">'+location+'</h1><a style="display:inline;position: absolute;right: 1em;" href="#" onclick="closePopup()">X</a></div>\
+    <br><img style="width: 100%;" src="./images/'+locationDesc+'"></img>';
+    document.getElementsByTagName('body')[0].appendChild(div); 
+    setTimeout(function() {
+      div.className = 'ready';
+    },10);
+  };
+
+  allMarkers.push(
+    L.marker([45.451661,-75.675919], {icon: blueIcon, alt:"1 Crescent Rd"}),
+    L.marker([45.452539,-75.675943], {icon: blueIcon, alt:"3 Crescent Rd"}),
+    L.marker([45.453047,-75.676104], {icon: blueIcon, alt:"5 Crescent Rd"}),
+    L.marker([45.453604,-75.676449], {icon: blueIcon, alt:"8 Crescent Rd"}),
+    L.marker([45.453835,-75.677075], {icon: blueIcon, alt:"9 Crescent Rd"}),
+    L.marker([45.452744,-75.676757], {icon: blueIcon, alt:"10 Crescent Rd"}),
+    L.marker([45.454011,-75.677901], {icon: blueIcon, alt:"11 Crescent Rd"}),
+    L.marker([45.449625,-75.669573], {icon: blueIcon, alt:"190 Lansdowne Rd"}),
+    L.marker([45.449253,-75.669922], {icon: blueIcon, alt:"193 Lansdowne Rd"}),
+    L.marker([45.450670,-75.681539], {icon: blueIcon, alt:"210 Buena Vista Rd"}),
+    L.marker([45.451126,-75.681587], {icon: blueIcon, alt:"211 Buena Vista Rd"}),
+    L.marker([45.450668,-75.681125], {icon: blueIcon, alt:"224 Buena Vista Rd"}),
+    L.marker([45.451155,-75.681046], {icon: blueIcon, alt:"231 Buena Vista Rd"}),
+    L.marker([45.450666,-75.680794], {icon: blueIcon, alt:"238 Buena Vista Rd"}),
+    L.marker([45.450992,-75.671481], {icon: blueIcon, alt:"The Dog Walk"}),
+    L.marker([45.450269,-75.671040], {icon: blueIcon, alt:"245 Sylvan Avenue"}),
+    L.marker([45.450103,-75.670686], {icon: blueIcon, alt:"250 Sylvan Avenue"}),
+    L.marker([45.453247,-75.681167], {icon: blueIcon, alt:"250 Thorold Rd"}),
+    L.marker([45.453714,-75.681156], {icon: blueIcon, alt:"251 Thorold Rd"}),
+    L.marker([45.450711,-75.680459], {icon: blueIcon, alt:"252 Buena Vista Rd"}),
+    L.marker([45.453280,-75.680208], {icon: blueIcon, alt:"280 Thorold Rd"}),
+    L.marker([45.448881,-75.680503], {icon: blueIcon, alt:"250 Manor Ave"}),
+    L.marker([45.449159,-75.680755], {icon: blueIcon, alt:"294 Manor Ave"}),
+    L.marker([45.449371,-75.680892], {icon: blueIcon, alt:"296 Manor Ave"}),
+    L.marker([45.450795,-75.679428], {icon: blueIcon, alt:"296 Buena Vista Rd"}),
+    L.marker([45.451374,-75.678915], {icon: blueIcon, alt:"301 Buena Vista Rd"}),
+    L.marker([45.453747,-75.679512], {icon: blueIcon, alt:"305 Thorold Rd"}),
+    L.marker([45.448441,-75.675924], {icon: blueIcon, alt:"362 Mariposa Ave"}),
+    L.marker([45.448485,-75.674862], {icon: blueIcon, alt:"382 Mariposa Ave"}),
+    L.marker([45.449140,-75.675151], {icon: blueIcon, alt:"383 Mariposa Ave"}),
+    L.marker([45.449185,-75.674765], {icon: blueIcon, alt:"387 Mariposa Ave"}),
+    L.marker([45.448749,-75.674572], {icon: blueIcon, alt:"388 Mariposa Ave"}),
+    L.marker([45.451330,-75.671685], {icon: blueIcon, alt:"400 Lansdowne Rd"}),
+    L.marker([45.451084,-75.673851], {icon: blueIcon, alt:"404 Cloverdale Rd"}),
+    L.marker([45.450993,-75.676098], {icon: blueIcon, alt:"408 Buena Vista Rd"}),
+    L.marker([45.451767,-75.672462], {icon: blueIcon, alt:"429 Lansdowne Rd"}),
+    L.marker([45.451603,-75.675307], {icon: blueIcon, alt:"459 Buena Vista Rd"}),
+    L.marker([45.452430,-75.672616], {icon: blueIcon, alt:"465 Lansdowne Rd"}),
+    L.marker([45.451384,-75.681630], {icon: blueIcon, alt:"468 Manor Ave"}),
+    L.marker([45.451467,-75.682430], {icon: blueIcon, alt:"477 Manor Ave"}),
+    L.marker([45.451896,-75.681694], {icon: blueIcon, alt:"480 Manor Ave"}),
+    L.marker([45.452795,-75.674153], {icon: blueIcon, alt:"484 Cloverdale Rd"}),
+    L.marker([45.453071,-75.672021], {icon: blueIcon, alt:"494 Lansdowne Rd"}),
+    L.marker([45.452950,-75.672714], {icon: blueIcon, alt:"495 Lansdowne Rd"}),
+    L.marker([45.452269,-75.682404], {icon: blueIcon, alt:"519 Manor Ave"}),
+    L.marker([45.449486,-75.672249], {icon: blueIcon, alt:"531 Mariposa Ave"}),
+    L.marker([45.453377,-75.678170], {icon: blueIcon, alt:"540 Acacia Ave"}),
+    L.marker([45.452749,-75.678696], {icon: blueIcon, alt:"541 Acacia Ave"}),
+    L.marker([45.452536,-75.682518], {icon: blueIcon, alt:"541 Manor Ave"}),
+    L.marker([45.449633,-75.671594], {icon: blueIcon, alt:"551 Mariposa Ave"}),
+    L.marker([45.453231,-75.673175], {icon: blueIcon, alt:"564 Hillsdale Rd"}),
+    L.marker([45.449344,-75.670659], {icon: blueIcon, alt:"582 Mariposa Ave"}),
+    L.marker([45.453360,-75.678948], {icon: blueIcon, alt:"585 Acacia Ave"}),
+    L.marker([45.453122,-75.682660], {icon: blueIcon, alt:"585 Manor Ave"}),
+    L.marker([45.453971,-75.679208], {icon: blueIcon, alt:"641 Acacia Ave"}),
+  );
+
+  /*Display first marker for starting walk*/
+  var startMarker = L.marker([45.450770, -75.678480], {icon: greenIcon, alt:null})
+  .bindPopup('Start here!');
+  allMarkers.push(startMarker);
+  
+  allMarkers.forEach(function(marker){
+    marker.addTo(map);
+    marker.on('click', function(e) {
+      if(e.sourceTarget.options.alt){
+        showImages(e.sourceTarget.options.alt);
+      }
+    });
+  });
+
+  // create a red polyline from an array of LatLng points
+  var latlngs = [
+    [45.450770, -75.678480],
+    [45.451063,-75.679164],
+    [45.450893,-75.681917],
+    [45.453353,-75.682286],
+    [45.453647,-75.677661],
+    [45.453499,-75.676998],
+    [45.452972,-75.676461],
+    [45.451325,-75.676113],
+    [45.451481,-75.674261],
+    [45.451037,-75.674122],
+    [45.451481,-75.674261],
+    [45.453142,-75.674551],
+    [45.453534,-75.674347],
+    [45.453353,-75.672436],
+    [45.451978,-75.672236],
+    [45.451149,-75.671920],
+    [45.450142,-75.669918],
+    [45.449637,-75.669945],
+    [45.449052,-75.674158],
+    [45.447983,-75.680374],
+    [45.449519,-75.681332],
+    [45.449830,-75.678836],
+    [45.450770, -75.678480]
+  ];
+
+  var polyline = L.polyline(latlngs, {color: 'green'}).addTo(map);
+
+  // zoom the map to the polyline
+  map.fitBounds(polyline.getBounds());
+
+  /* Stolen from https://codepen.io/anon/pen/GpQzyo */
+  setTimeout(function() {
+    var div = document.createElement('div');
+    div.id = 'popup';
+    div.innerHTML = 'Welcome to the Rockcliffe Park Heritage Walk!\
+    <br><br> The walk starts at the Rockcliffe Park, which is the\
+    green marker on the map \
+    <br><br> Thank you to the many volunteers of the RPRA who researched\
+    the history of Rockcliffe Village, specifically Martha Edmond who\
+    provided her extensive knowledge.\
+    <br><br><a href="#" onclick="closePopup()">Click to continue</a>';
+    document.getElementsByTagName('body')[0].appendChild(div); 
+    setTimeout(function() {
+      div.className = 'ready';
+    },10);
+  },1000);
+
+  function closePopup() {
+    var popup = document.getElementById('popup');
+    if(!shownCommunityNote){
+      popup.innerHTML = 'Community Notice:\
+      <br><br> <img style="width: 100%;" src="./images/community_note.png"></img>\
+      <br><br><a href="#" onclick="closePopup()">Close.</a>';
+      shownCommunityNote = true;
+    }else{
+      popup.parentNode.removeChild(popup);
+    }
+  }
   </script>
 </body>
 </html>
