@@ -1,8 +1,4 @@
-# leaflet-map-simple
-A simple Leaflet map template for new users to fork their own copy, edit, and host on GitHub Pages
+# Rockcliffe Heritage Walk
 
-## Link to live map (replace with link to your site)
-https://handsondataviz.github.io/leaflet-map-simple/
+Explore Rockcliffe's heritage via the map found [here](http://walkrock.github.io/walkrock/)!
 
-## Create your own
-See step-by-step tutorial at https://HandsOnDataViz.org, an open-access book by Jack Dougherty and Ilya Ilyankou
